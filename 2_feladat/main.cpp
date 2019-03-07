@@ -4,21 +4,17 @@
 
 using namespace std;
 
-static double epsilon = 1e-5;
+static double epsilon = 1e-9;
 static int max_step = 20;
 
-template <typename T, typename F1, typename F2, typename F3>
+template <typename F1, typename F2, typename F3, typename T>
 
 T newton(F1 func, F2 f_der, F3 check, T x0){
-    if(!check(0,x0)){
-        cout<<"Initial guess error!"<<endl;
-        exit(-1);
-    }
     T prev = 0;
     int counter = 0;
     while(check(prev,x0) && counter < max_step){
         prev = x0;
-        x0 = x0 - f(x0) / f_der(x0);
+        x0 = x0 - func(x0) / f_der(x0);
         counter++;
     }
     return x0;
