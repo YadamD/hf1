@@ -39,7 +39,7 @@ int main() {
     cout <<"Különbség:"<<result-0.6901942235215714<<endl;
 	x_0 = 100;
 	x_1 = -100;
-    result = midpoint(0, x_0, x_1);
+    result = midpoint(10000000, x_0, x_1);
 	cout <<'\n'<<result<<endl;
 	cout << "Helyes ertek: 1.38038844704314297477341" <<endl;
     cout <<"Különbség:"<<result-1.3803884470431429<<endl;
