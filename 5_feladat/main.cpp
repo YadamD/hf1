@@ -65,16 +65,24 @@ int main(){
         cout<<mul1<<endl;; 
     }
 
+    sq_matrix<double> a6d = m2/100;    
+    sq_matrix<double> div = {5.67, 5.73, 8.4, 1.05, 2.23, 2.89, 1.69, 9.28, 8.31, 7.88, 6.61, 2.61, 0.59, 8.09, 4.49, 0.49};
+    if(!sq_matrix_eq(a6d, div, eps)){
+        cout<<"Matrix division error!"<<endl;
+        cout<<a6d<<endl;
+        cout<<div<<endl;; 
+    }
+
     sq_matrix<double> a7 = m1 + std::move(m3);
     if(!sq_matrix_eq(a7, add_res, eps)){
-        cout<<"Addition operator error! (move)"<<endl;
+        cout<<"Addition operator error! (move2)"<<endl;
         cout<<a7<<endl;
         cout<<add_res<<endl;
     }
     sq_matrix<double> m4 = m2;
     sq_matrix<double> a8 = std::move(m4) + m1;
     if(!sq_matrix_eq(a8, add_res, eps)){
-        cout<<"Addition operator error! (move)"<<endl;
+        cout<<"Addition operator error! (move1)"<<endl;
         cout<<a8<<endl;
         cout<<add_res<<endl;
     }
@@ -83,11 +91,64 @@ int main(){
     sq_matrix<double> m6 = m2;
     sq_matrix<double> a9 = std::move(m5) + std::move(m6);
     if(!sq_matrix_eq(a9, add_res, eps)){
-        cout<<"Addition operator error! (move)"<<endl;
+        cout<<"Addition operator error! (move_both)"<<endl;
         cout<<a9<<endl;
         cout<<add_res<<endl;
     }
 
+    sq_matrix<double> m7 = m1;
+    sq_matrix<double> m8 = m2;
+    sq_matrix<double> a10 = std::move(m7) - std::move(m8);
+    if(!sq_matrix_eq(a10, sub_res, eps)){
+        cout<<"Substraction operator error! (move_both)"<<endl;
+        cout<<a10<<endl;
+        cout<<sub_res<<endl;
+    }
+
+    sq_matrix<double> m9 = m1;
+    sq_matrix<double> m10 = m2;
+    sq_matrix<double> a11 = m9 - std::move(m10);
+    if(!sq_matrix_eq(a11, sub_res, eps)){
+        cout<<"Substraction operator error! (move_2)"<<endl;
+        cout<<a11<<endl;
+        cout<<sub_res<<endl;
+    }
+
+    sq_matrix<double> m11 = m1;
+    sq_matrix<double> m12 = m2;
+    sq_matrix<double> a12 = std::move(m11) - m12;
+    if(!sq_matrix_eq(a12, sub_res, eps)){
+        cout<<"Substraction operator error! (move1)"<<endl;
+        cout<<a12<<endl;
+        cout<<sub_res<<endl;
+    }
+    
+    sq_matrix<double> m13 = m1;
+    sq_matrix<double> m14 = m2;
+    sq_matrix<double> a13 = m13 * std::move(m14);
+    if(!sq_matrix_eq(a13, prod_res1, eps)){
+        cout<<"Matrix product error! (move2)"<<endl;
+        cout<<a13<<endl;
+        cout<<prod_res1<<endl;
+    }
+
+    sq_matrix<double> m15 = m1;
+    sq_matrix<double> m16 = m2;
+    sq_matrix<double> a14 = std::move(m15) * m16;
+    if(!sq_matrix_eq(a14, prod_res1, eps)){
+        cout<<"Matrix product error! (move1)"<<endl;
+        cout<<a14<<endl;
+        cout<<prod_res1<<endl;
+    }
+
+    sq_matrix<double> m17 = m1;
+    sq_matrix<double> m18 = m2;
+    sq_matrix<double> a15 = std::move(m17) * std::move(m18);
+    if(!sq_matrix_eq(a15, prod_res1, eps)){
+        cout<<"Matrix product error! (move_both)"<<endl;
+        cout<<a15<<endl;
+        cout<<prod_res1<<endl;
+    }
 
     return 0;
 
