@@ -62,6 +62,7 @@ class sq_matrix{
     std::vector<T> get_data() const&{
 		return data;
 	}
+
 	auto begin(){
 		return data.begin();
 	}
@@ -161,7 +162,7 @@ sq_matrix<T> operator*(sq_matrix<T> const& m, T const& c){
 
 template<typename T>
 sq_matrix<T> && operator*(sq_matrix<T>&& m, T const& c){
-    detail::transform_matrix1(m.data, m.data, [c](T const& x){return x * c;});
+    detail::transform_matrix1(m, m, [c](T const& x){return x * c;});
     return std::move(m);
 }
 
@@ -214,14 +215,20 @@ sq_matrix<T> operator*(sq_matrix<T> const& m1, sq_matrix<T> const& m2){
 
 template<typename T1>
 sq_matrix<T1>&& operator*(sq_matrix<T1>&& m1, sq_matrix<T1> const& m2){
-    sq_matrix<T1> m1 = sq_mat_mul(m1, m2);
+    m1 = sq_mat_mul(m1, m2);
     return std::move(m1);
 }
 
 template<typename T1>
 sq_matrix<T1>&& operator*(sq_matrix<T1> const& m1, sq_matrix<T1>&& m2){
-    sq_matrix<T1> m2 = sq_mat_mul(m1, m2);
+    m2 = sq_mat_mul(m1, m2);
     return std::move(m2);
+}
+
+template<typename T1>
+sq_matrix<T1>&& operator*(sq_matrix<T1> && m1, sq_matrix<T1>&& m2){
+    m1 = sq_mat_mul(m1, m2);
+    return std::move(m1);
 }
 
 template<typename T>
@@ -250,5 +257,5 @@ bool sq_matrix_eq(sq_matrix<T> const& m1, sq_matrix<T> const& m2, double eps){
             }
         }
     }
-    return true;
+    return true; 
 }
