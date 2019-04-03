@@ -41,7 +41,7 @@ class sq_matrix{
         }
     };
     sq_matrix<T>(sq_matrix<T> const& cpy): dim{cpy.dim}, data{cpy.data}{
-        if( dim != cpy.n){
+        if( dim != cpy.dim){
             std::cout<<"Dimension error!"<<std::endl;
             exit(-1);
         }
@@ -62,10 +62,6 @@ class sq_matrix{
     std::vector<T> get_data() const&{
 		return data;
 	}
-    std::vector<T> set_data(){
-		return data;
-	}
-
 	auto begin(){
 		return data.begin();
 	}
@@ -102,74 +98,64 @@ class sq_matrix{
         dim = static_cast<int>(dim_check);
         data = list;
     };
-
-    template<typename T1>
-    friend sq_matrix<T1>&& operator+(sq_matrix<T1>&& m1, sq_matrix<T1> const& m2);
-    template<typename T1>
-    friend sq_matrix<T1> operator+(sq_matrix<T1> const& m1, sq_matrix<T1> const& m2);
     template<typename T1>
     friend sq_matrix<T1> sq_mat_mul(sq_matrix<T1> const& m1, sq_matrix<T1> const& m2);
-    template<typename T1>
-    friend std::ostream& operator<<(std::ostream& o, sq_matrix<T1> const& m);
-    template<typename T1>
-    friend sq_matrix<T1> operator-(sq_matrix<T1> const& m1, sq_matrix<T1> const& m2);
 };
 
 template<typename T>
 sq_matrix<T> operator+(sq_matrix<T> const& m1, sq_matrix<T> const& m2){
     sq_matrix<T> result(m1.dimension());
-    detail::transform_matrix2(m1.data, m2.data, result.data, add);
+    detail::transform_matrix2(m1, m2, result, add);
     return result;
 }
 
 template<typename T>
 sq_matrix<T>&& operator+(sq_matrix<T>&& m1, sq_matrix<T> const& m2){
-    detail::transform_matrix1(m1.data, m2.data, m1.data, add);
+    detail::transform_matrix2(m1, m2, m1, add);
     return std::move(m1);
 }
 
 template<typename T>
 sq_matrix<T>&& operator+(sq_matrix<T> const& m1, sq_matrix<T>&& m2){
-    detail::transform_matrix2(m1.data, m2.data, m1.data, add);
+    detail::transform_matrix2(m1, m2, m2, add);
     return std::move(m2);
 }
 
 template<typename T>
 sq_matrix<T> && operator+(sq_matrix<T>&& m1, sq_matrix<T>&& m2){
-    detail::transform_matrix2(m1.data, m2.data, m1.data, add);
+    detail::transform_matrix2(m1, m2, m1, add);
     return std::move(m1);
 }
 
 template<typename T>
 sq_matrix<T> operator-(sq_matrix<T> const& m1, sq_matrix<T> const& m2){
     sq_matrix<T> result(m1.dimension());
-    detail::transform_matrix2(m1.get_data(), m2.get_data(), result.data, sub);
+    detail::transform_matrix2(m1, m2, result, sub);
     return result;
 }
 
 template<typename T>
 sq_matrix<T>&& operator-(sq_matrix<T>&& m1, sq_matrix<T> const& m2){
-    detail::transform_matrix2(m1.data, m2.data, m1.data, sub);
+    detail::transform_matrix2(m1, m2, m1, sub);
     return std::move(m1);
 }
 
 template<typename T>
 sq_matrix<T>&& operator-(sq_matrix<T> const& m1, sq_matrix<T>&& m2){
-    detail::transform_matrix2(m1.data, m2.data, m1.data, sub);
+    detail::transform_matrix2(m1, m2, m2, sub);
     return std::move(m2);
 }
 
 template<typename T>
 sq_matrix<T>&& operator-(sq_matrix<T>&& m1, sq_matrix<T>&& m2){
-    detail::transform_matrix2(m1.data, m2.data, m1.data, sub);
+    detail::transform_matrix2(m1, m2, m1, sub);
     return std::move(m1);
 }
 
 template<typename T>
 sq_matrix<T> operator*(sq_matrix<T> const& m, T const& c){
-    sq_matrix<T> result;
-    result.data.resize(m.len);
-    detail::transform_matrix1(m.data, result.data, [c](T const& x){return x * c;});
+    sq_matrix<T> result(m.dimension());
+    detail::transform_matrix1(m, result, [c](T const& x){return x * c;});
     return result;
 }
 
@@ -181,23 +167,21 @@ sq_matrix<T> && operator*(sq_matrix<T>&& m, T const& c){
 
 template<typename T>
 sq_matrix<T> operator*(T const& c, sq_matrix<T> const& m){
-    sq_matrix<T> result;
-    result.data.resize(m.len);
-    detail::transform_matrix1(m.data, result.data, [c](T const& x){return x * c;});
+    sq_matrix<T> result(m.dimension());
+    detail::transform_matrix1(m, result, [c](T const& x){return x * c;});
     return result;
 }
 
 template<typename T>
 sq_matrix<T>&& operator*(T const& c, sq_matrix<T>&& m){
-    detail::transform_matrix1(m.data, m.data, [c](T const& x){return x * c;});
+    detail::transform_matrix1(m, m, [c](T const& x){return x * c;});
     return std::move(m);
 }
 
 template<typename T1, typename T2>
 sq_matrix<T1> operator/(sq_matrix<T1> const& m, T2 const& c){
-    sq_matrix<T1> result;
-    result.data.resize(m.len);
-    detail::transform_matrix1(m.data, result.data, [c](T1 const& x){return x / c;});
+    sq_matrix<T1> result(m.dimension());
+    detail::transform_matrix1(m, result, [c](T1 const& x){return x / c;});
     return result;
 }
 
