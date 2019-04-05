@@ -97,7 +97,7 @@ auto sqlength(vec2<T> const& v){
 template<typename T>
 vec2<T> normalize(vec2<T> const& v){
     double l = length(v);
-    if(l == 0){
+    if(l < 1e-12){
         std::cout<<"Vector is a null vector!"<<std::endl;
         return v;
     }
