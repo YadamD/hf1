@@ -74,9 +74,7 @@ std::ostream& operator<<(std::ostream& o,vec2<T> const& v){
 
 template<typename T>
 std::istream& operator>>(std::istream& i,vec2<T>& v){
-    std::cout<<"Set first component: \n"<<std::endl;
     i>>v.x;
-    std::cout<<"Set second component: \n"<<std::endl;
     i>>v.y;
     return i;
 }
@@ -84,7 +82,7 @@ std::istream& operator>>(std::istream& i,vec2<T>& v){
 template<typename T1,typename T2>
 auto dot(vec2<T1> const& v1, vec2<T2> const& v2){
     return v1.x * v2.x + v1.y * v2.y;
-};
+}
 
 template<typename T>
 auto length(vec2<T> const& v){
@@ -92,15 +90,30 @@ auto length(vec2<T> const& v){
 }
 
 template<typename T>
-auto sqlenght(vec2<T> const& v){
+auto sqlength(vec2<T> const& v){
     return dot(v, v);
 }
 
 template<typename T>
 vec2<T> normalize(vec2<T> const& v){
-    if(sqlenght(v) == 0){
+    double l = length(v);
+    if(l == 0){
         std::cout<<"Vector is a null vector!"<<std::endl;
         return v;
     }
-    return v / length(v);
+    return v / l;
+}
+
+template<typename T1, typename T2>
+bool operator==(vec2<T1> const& v1, vec2<T2> const& v2){
+    double eps = 1e-10;
+    if(std::abs(v1.x - v2.x) < eps && std::abs(v1.y -v2.y) < eps){
+        return true;
+    }
+    return false;
+}
+
+template<typename T1, typename T2>
+bool operator!=(vec2<T1> const& v1, vec2<T2> const& v2){
+    return !(v1==v2);
 }
