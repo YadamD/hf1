@@ -122,7 +122,7 @@ int main(){
         cout<<a12<<endl;
         cout<<sub_res<<endl;
     }
-    
+  
     sq_matrix<double> m13 = m1;
     sq_matrix<double> m14 = m2;
     sq_matrix<double> a13 = m13 * std::move(m14);
@@ -153,4 +153,3 @@ int main(){
     return 0;
 
 }
-
