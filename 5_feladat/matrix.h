@@ -51,6 +51,8 @@ class sq_matrix{
 	sq_matrix<T>& operator=(sq_matrix&&) = default;
     T & operator()(int i, int j){return data[dim * i + j];}
     T const& operator()(int i, int j) const {return data[ dim * i + j];}
+    T & operator[](int i){return data[i];}
+    T const& operator[](int i) const {return data[i];}
 
     int dimension() const{
 		return dim;
@@ -195,7 +197,7 @@ template<typename T>
 sq_matrix<T> sq_mat_mul(sq_matrix<T> const& m1, sq_matrix<T> const& m2){
     int const n = m1.dimension();
     double sum = 0;
-    sq_matrix<T> temp(m1.dimension());
+    sq_matrix<T> temp(n);
     for(int i = 0; i < n; i++){
         for(int j = 0; j < n; j++){
             sum = 0;
@@ -213,21 +215,51 @@ sq_matrix<T> operator*(sq_matrix<T> const& m1, sq_matrix<T> const& m2){
     return sq_mat_mul(m1, m2);
 }
 
-template<typename T1>
-sq_matrix<T1>&& operator*(sq_matrix<T1>&& m1, sq_matrix<T1> const& m2){
-    m1 = sq_mat_mul(m1, m2);
+template<typename T>
+sq_matrix<T> operator*(sq_matrix<T> && m1, sq_matrix<T> const& m2){  
+    int n = m1.dimension();
+    std::vector<T> temp(n);
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m1.size(); j++){
+            temp[j/n] += m1[(j % n) + i * n] * m2[(j % n) * n + (j / n)];
+            if(m1.size() - n <= j){
+            m1[(j % n) + i * n] = temp[(j % n)];
+            temp[j % n] = 0;
+            }
+        }
+    }
     return std::move(m1);
 }
 
-template<typename T1>
-sq_matrix<T1>&& operator*(sq_matrix<T1> const& m1, sq_matrix<T1>&& m2){
-    m2 = sq_mat_mul(m1, m2);
+template<typename T>
+sq_matrix<T> operator*(sq_matrix<T> const& m1, sq_matrix<T>&& m2){  
+    int n = m1.dimension();
+    std::vector<T> temp(n);
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m1.size(); j++){
+            temp[j/n] += m1[j] * m2[(j % n) * n + i];
+            if(m1.size() - n <= j){
+            m2[(j % n) * n + i] = temp[(j % n)];
+            temp[j % n] = 0;
+            }
+        }
+    }
     return std::move(m2);
 }
 
-template<typename T1>
-sq_matrix<T1>&& operator*(sq_matrix<T1> && m1, sq_matrix<T1>&& m2){
-    m1 = sq_mat_mul(m1, m2);
+template<typename T>
+sq_matrix<T> operator*(sq_matrix<T> && m1, sq_matrix<T>&& m2){  
+    int n = m1.dimension();
+    std::vector<T> temp(n);
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m1.size(); j++){
+            temp[j/n] += m1[(j % n) + i * n] * m2[(j % n) * n + (j / n)];
+            if(m1.size() - n <= j){
+            m1[(j % n) + i * n] = temp[(j % n)];
+            temp[j % n] = 0;
+            }
+        }
+    }
     return std::move(m1);
 }
 
