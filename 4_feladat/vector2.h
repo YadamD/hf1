@@ -58,7 +58,7 @@ auto operator*(T1 const& c,vec2<T2> const& v){
 
 template<typename T1, typename T2>
 auto operator*(vec2<T1> const& v, T2 const& c){
-    return vec2<decltype(c * v.x)>{c * v.x, c * v.y};
+    return vec2<decltype(v.x * c)>{v.x * c, v.y * c};
 }
 
 template<typename T1, typename T2>
@@ -96,7 +96,7 @@ auto sqlength(vec2<T> const& v){
 
 template<typename T>
 vec2<T> normalize(vec2<T> const& v){
-    double l = length(v);
+    T l = length(v);
     if(l < 1e-12){
         std::cout<<"Vector is a null vector!"<<std::endl;
         return v;
@@ -104,16 +104,10 @@ vec2<T> normalize(vec2<T> const& v){
     return v / l;
 }
 
-template<typename T1, typename T2>
-bool operator==(vec2<T1> const& v1, vec2<T2> const& v2){
-    double eps = 1e-10;
+template<typename T>
+bool vec2eq(vec2<T> const& v1, vec2<T> const& v2, T eps){
     if(std::abs(v1.x - v2.x) < eps && std::abs(v1.y -v2.y) < eps){
         return true;
     }
     return false;
-}
-
-template<typename T1, typename T2>
-bool operator!=(vec2<T1> const& v1, vec2<T2> const& v2){
-    return !(v1==v2);
 }
