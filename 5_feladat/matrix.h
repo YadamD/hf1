@@ -22,6 +22,28 @@ auto add = [](auto const& x, auto const& y){ return x + y; };
 auto sub = [](auto const& x, auto const& y){ return x - y; };
 
 template<typename T>
+std::vector<T> sq_mat_mul(std::vector<T> const& m1, std::vector<T> const& m2){
+    int const size = static_cast<int>(m1.size());
+    int n = static_cast<int>(std::sqrt(size));
+    T sum = 0;
+    std::vector<T> temp(size);
+    if(size != static_cast<int>(m2.size()) || n * n != size){
+        std::cout<<"Matrices cannot be multiplied together!"<<std::endl;
+        return temp;
+    }
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++){
+            sum = 0;
+            for(int k = 0; k < n; k++){
+                sum += (m1[i * n + k]) * (m2[k * n + j ]);
+            }
+        temp[n*i+j] = sum;
+        }
+    }
+    return temp;
+}
+
+template<typename T>
 class sq_matrix{
 
     int dim;
@@ -31,15 +53,16 @@ class sq_matrix{
 
     sq_matrix(): dim{1}, data{{0.0}}{};
     sq_matrix(int i): dim{i}, data(i*i,0){};
-    sq_matrix(int i, std::vector<T> v): dim{i} {
-        if(dim * dim == static_cast<int>(v.data.size())){
-            data(v);
+    sq_matrix(int i, std::vector<T> const& v):dim(i) {
+        if(dim * dim == static_cast<int>(v.size())){
+            data = v;
         }
         else{
             std::cout<<"Initialization error!"<<std::endl;
             exit(-1);
         }
     };
+
     sq_matrix<T>(sq_matrix<T> const& cpy): dim{cpy.dim}, data{cpy.data}{
         if( dim != cpy.dim){
             std::cout<<"Dimension error!"<<std::endl;
@@ -49,11 +72,55 @@ class sq_matrix{
 
 	sq_matrix(sq_matrix&&) = default;
 	sq_matrix<T>& operator=(sq_matrix&&) = default;
+
     T & operator()(int i, int j){return data[dim * i + j];}
     T const& operator()(int i, int j) const {return data[ dim * i + j];}
     T & operator[](int i){return data[i];}
     T const& operator[](int i) const {return data[i];}
+    sq_matrix(std::initializer_list<T> const& list, int dimension){
+        if(dimension*dimension != static_cast<int>(list.size())){
+            std::cout<<"Error: nonsquare matrix!"<<std::endl;
+            exit(-1);
+        }
+        dim = dimension;
+        data = list;
+    };
 
+    sq_matrix( int dimension, std::initializer_list<T> const& list){
+        if(dimension*dimension != static_cast<int>(list.size())){
+            std::cout<<"Error: nonsquare matrix!"<<std::endl;
+            exit(-1);
+        }
+        dim = dimension;
+        data = list;
+    };
+
+    sq_matrix<T>& operator+=(sq_matrix<T> const& m){
+        detail::transform_matrix2((*this).data, m.data, (*this).data, add);
+        return *this;
+    }
+
+    sq_matrix<T>& operator-=(sq_matrix<T> const& m){
+        detail::transform_matrix2((*this).data, m.data, (*this).data, sub);
+        return *this;
+    }
+
+    sq_matrix<T>& operator*=(T const& c){
+        detail::transform_matrix1((*this).data, (*this).data, [=](T const& x){return x * c;});
+        return *this;
+    }
+    
+    sq_matrix<T>& operator/=(T const& c){
+        detail::transform_matrix1((*this).data, (*this).data, [=](T const& x){return x / c;});
+        return *this;
+    }
+
+    sq_matrix<T>& operator*=(sq_matrix<T> const& m){
+        std::vector<T> temp = sq_mat_mul((*this).data, m.data);        
+        (*this).data.swap(temp);
+        return *this;
+    }
+    
     int dimension() const{
 		return dim;
 	}
@@ -61,7 +128,7 @@ class sq_matrix{
     int size() const{
 		return dim*dim;
 	}
-    std::vector<T> get_data() const&{
+    std::vector<T> read_data() const&{
 		return data;
 	}
 
@@ -80,30 +147,47 @@ class sq_matrix{
 	auto cend() const{
 		return data.cend();
     }
-    
-    sq_matrix(std::initializer_list<T> const& list){
-        double dim_check = sqrt(static_cast<int>(list.size()));
-        int dim_check_int = static_cast<int>(dim_check);
-        if(dim_check - dim_check_int  > 1e-10){
-            std::cout<<"Error: nonsquare matrix!"<<std::endl;
-            exit(-1);
-        }
-        dim = static_cast<int>(dim_check);
-        data = list;
-    };
-    sq_matrix<T>& operator=(std::initializer_list<T> const& list){
-        double dim_check = sqrt(static_cast<int>(list.size()));
-        int dim_check_int = static_cast<int>(dim_check);
-        if(dim_check - dim_check_int  > 1e-10){
-            std::cout<<"Error: nonsquare matrix!"<<std::endl;
-            exit(-1);
-        }
-        dim = static_cast<int>(dim_check);
-        data = list;
-    };
+/*
     template<typename T1>
     friend sq_matrix<T1> sq_mat_mul(sq_matrix<T1> const& m1, sq_matrix<T1> const& m2);
+    friend std::vector<T>;
+*/
 };
+
+template<typename T>
+int sq_mat_prod(sq_matrix<T> & m1, sq_matrix<T> & m2, int lab){
+    int n = m1.dimension();
+    std::vector<T> temp(n);  
+    if(lab == 1){
+        for(int i = 0; i <  n; i++){
+            std::fill(temp.begin(), temp.end(), 0);
+            for(int j = 0; j < n; j++){
+                for(int k = 0; k < n; k++){
+                    temp[j] += m1(i, k) * m2(k, j);
+                    if(j == n - 1){
+                        m1(i, k) = temp[k];
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+    else if(lab == 2){
+        for(int i = 0; i <  n; i++){
+            std::fill(temp.begin(), temp.end(), 0);
+            for(int j = 0; j < n; j++){
+                for(int k = 0; k < n; k++){
+                    temp[j] += m1(j, k) * m2(k, i);
+                    if(j == n - 1){
+                        m2(k, i) = temp[k];
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+    return -1;
+}
 
 template<typename T>
 sq_matrix<T> operator+(sq_matrix<T> const& m1, sq_matrix<T> const& m2){
@@ -125,7 +209,7 @@ sq_matrix<T>&& operator+(sq_matrix<T> const& m1, sq_matrix<T>&& m2){
 }
 
 template<typename T>
-sq_matrix<T> && operator+(sq_matrix<T>&& m1, sq_matrix<T>&& m2){
+sq_matrix<T>&& operator+(sq_matrix<T>&& m1, sq_matrix<T>&& m2){
     detail::transform_matrix2(m1, m2, m1, add);
     return std::move(m1);
 }
@@ -163,7 +247,7 @@ sq_matrix<T> operator*(sq_matrix<T> const& m, T const& c){
 }
 
 template<typename T>
-sq_matrix<T> && operator*(sq_matrix<T>&& m, T const& c){
+sq_matrix<T>&& operator*(sq_matrix<T>&& m, T const& c){
     detail::transform_matrix1(m, m, [c](T const& x){return x * c;});
     return std::move(m);
 }
@@ -191,74 +275,37 @@ sq_matrix<T1> operator/(sq_matrix<T1> const& m, T2 const& c){
 template<typename T1, typename T2>
 sq_matrix<T1>&& operator/(sq_matrix<T1>&& m, T2 const& c){
     detail::transform_matrix1(m.data, m.data, [c](T1 const& x){return x / c;});
+    return std::move(m);
 }
 
 template<typename T>
-sq_matrix<T> sq_mat_mul(sq_matrix<T> const& m1, sq_matrix<T> const& m2){
-    int const n = m1.dimension();
-    double sum = 0;
-    sq_matrix<T> temp(n);
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < n; j++){
-            sum = 0;
-            for(int k = 0; k < n; k++){
-                sum += (m1.data[i * n + k]) * (m2.data[k * n + j ]);
-            }
-        temp.data[n*i+j] = sum;
-        }
-    }
+sq_matrix<T> operator*(sq_matrix<T> const& m1, sq_matrix<T> const& m2){
+    std::vector<T> v(m1.size());
+    v = sq_mat_mul(m1.read_data(), m2.read_data());
+    sq_matrix<T> temp(m1.dimension(), v);
     return temp;
 }
 
 template<typename T>
-sq_matrix<T> operator*(sq_matrix<T> const& m1, sq_matrix<T> const& m2){  
-    return sq_mat_mul(m1, m2);
-}
-
-template<typename T>
-sq_matrix<T> operator*(sq_matrix<T> && m1, sq_matrix<T> const& m2){  
-    int n = m1.dimension();
-    std::vector<T> temp(n);
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < m1.size(); j++){
-            temp[j/n] += m1[(j % n) + i * n] * m2[(j % n) * n + (j / n)];
-            if(m1.size() - n <= j){
-            m1[(j % n) + i * n] = temp[(j % n)];
-            temp[j % n] = 0;
-            }
-        }
+sq_matrix<T>&& operator*(sq_matrix<T> && m1, sq_matrix<T> & m2){
+    if(sq_mat_prod(m1, m2, 1) != 0){
+        std::cout<<"Matrix product error!"<<std::endl;
     }
     return std::move(m1);
 }
 
 template<typename T>
-sq_matrix<T> operator*(sq_matrix<T> const& m1, sq_matrix<T>&& m2){  
-    int n = m1.dimension();
-    std::vector<T> temp(n);
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < m1.size(); j++){
-            temp[j/n] += m1[j] * m2[(j % n) * n + i];
-            if(m1.size() - n <= j){
-            m2[(j % n) * n + i] = temp[(j % n)];
-            temp[j % n] = 0;
-            }
-        }
+sq_matrix<T>&& operator*(sq_matrix<T> & m1, sq_matrix<T>&& m2){
+    if(sq_mat_prod(m1, m2, 2) != 0){
+        std::cout<<"Matrix product error!"<<std::endl;
     }
     return std::move(m2);
 }
 
 template<typename T>
-sq_matrix<T> operator*(sq_matrix<T> && m1, sq_matrix<T>&& m2){  
-    int n = m1.dimension();
-    std::vector<T> temp(n);
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < m1.size(); j++){
-            temp[j/n] += m1[(j % n) + i * n] * m2[(j % n) * n + (j / n)];
-            if(m1.size() - n <= j){
-            m1[(j % n) + i * n] = temp[(j % n)];
-            temp[j % n] = 0;
-            }
-        }
+sq_matrix<T>&& operator*(sq_matrix<T> && m1, sq_matrix<T>&& m2){ 
+    if(sq_mat_prod(m1, m2, 1) != 0){
+        std::cout<<"Matrix product error!"<<std::endl;
     }
     return std::move(m1);
 }
@@ -277,16 +324,14 @@ std::ostream& operator<<(std::ostream& o, sq_matrix<T> const& m){
 }
 
 template<typename T>
-bool sq_matrix_eq(sq_matrix<T> const& m1, sq_matrix<T> const& m2, double eps){
+bool sq_matrix_eq(sq_matrix<T> const& m1, sq_matrix<T> const& m2, T eps){
     int n = m1.dimension();
-    if(n != m2.dimension()){
+    if(n != m2.dimension() || m1.size() != n*n || m2.size() != n*n){
         return false;
     }
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < n; j++){
-            if(std::abs(m1(i,j) - m2(i,j)) > eps){
-                return false;
-            }
+    for(int i = 0; i < n * n; i++){
+        if(std::abs(m1[i] - m2[i]) > eps){
+            return false;
         }
     }
     return true; 
