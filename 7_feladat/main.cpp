@@ -32,8 +32,8 @@ int main(int, char**){
         double t_r =(static_cast<std::chrono::duration<double,std::milli>>(t_1-t_0)).count();
         time_r.push_back(t_r);
     }
-    std::ofstream f;
-    f.open("timedata.txt",std::fstream::app);
+    ofstream f;
+    f.open("timedata.txt",fstream::app);
     for(int i = 0; i < static_cast<int>(N.size())-1; i++){
     f << N[i] << ", " << time_r[i] << "\n";
     }
