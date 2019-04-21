@@ -361,7 +361,7 @@ std::istream& operator>>(std::istream& s, sq_matrix<T1>& mat){
         std::cout<<"Dimension error!"<<std::endl;
     }
     return s;
-};
+}
 
 
 template<typename T>
