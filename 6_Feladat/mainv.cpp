@@ -63,12 +63,27 @@ int main(int,char**){
         cout<<"Error in /= operator"<<endl;
     }
 
-    std::stringstream ss;
-    ss<<v3;
-    vec2<double> v_res;
-    ss>>v_res;
-    if(!vec2eq(v3, v_res, epsilon)){
+    stringstream ss1;
+    ss1<<v3;
+    vec2<double> v_res1;
+    ss1>>v_res1;
+    if(!vec2eq(v3, v_res1, epsilon)){
         cout<<"Error in << operator"<<endl;
     }
+    stringstream ss2;
+    ss2<<"1.2,2.3";
+    vec2<double> v_res2;
+    ss2>>v_res2;
+    if(!vec2eq(sol4, v_res2, epsilon)){
+        cout<<"Error in << operator"<<endl;
+    }
+
+    stringstream ss3;
+    ss3<< sol4;
+    string s3 = ss3.str();
+    if("1.2,2.3" != s3){
+        cout<<"Error in << operator"<<endl;
+    }
+
     return 0;
 }
