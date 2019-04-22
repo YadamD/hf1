@@ -24,11 +24,11 @@ auto sub = [](auto const& x, auto const& y){ return x - y; };
 
 template<typename T>
 std::vector<T> sq_mat_mul(std::vector<T> const& m1, std::vector<T> const& m2, int dim){
-    int const size = m1.size();
+    int const size = static_cast<int>(m1.size());
     int n = dim*dim;
     T sum = 0;
     std::vector<T> temp(size);
-    if(size != m2.size() || n != size){
+    if(size !=  static_cast<int>(m2.size()) || n != size){
         std::cout<<"Matrices cannot be multiplied together!"<<std::endl;
         return temp;
     }
@@ -71,8 +71,9 @@ class sq_matrix{
         }
     }
 
-	sq_matrix(sq_matrix&&) = default;
-	sq_matrix<T>& operator=(sq_matrix&&) = default;
+	//sq_matrix<T>(sq_matrix<T>&&) = default;
+	sq_matrix<T>& operator=(sq_matrix<T>&&) = default;
+    sq_matrix<T>(sq_matrix<T>&& o) noexcept : dim(std::exchange(o.dim, 0)), data(std::move(o.data)) {}
 
     T & operator()(int i, int j){return data[dim * i + j];}
     T const& operator()(int i, int j) const {return data[ dim * i + j];}
@@ -177,12 +178,12 @@ int sq_mat_prod(sq_matrix<T> & m1, sq_matrix<T> & m2, int lab){
             for(int j = 0; j < n; j++){
                 double temp_d  = 0;
                 for(int k = 0; k < n; k++){
-                    temp_d += m1(i, k) * m2(k, j);
+                    temp_d += m1(j, k) * m2(k, i);
                 }
                 temp[j] = temp_d;
             }
             for(int j = 0; j < n; j++){
-                m2(i, j) = temp[j];
+                m2(j, i) = temp[j];
             }
         }
         return 0;
@@ -282,7 +283,7 @@ sq_matrix<T1>&& operator/(sq_matrix<T1>&& m, T2 const& c){
 template<typename T>
 sq_matrix<T> operator*(sq_matrix<T> const& m1, sq_matrix<T> const& m2){
     std::vector<T> v(m1.size());
-    v = sq_mat_mul(m1.read_data(), m2.read_data(), m1.dim);
+    v = sq_mat_mul(m1.read_data(), m2.read_data(), m1.dimension());
     sq_matrix<T> temp(m1.dimension(), v);
     return temp;
 }
@@ -329,7 +330,9 @@ std::istream& operator>>(std::istream& s, sq_matrix<T1>& mat){
     auto rewind = [state = s.rdstate(), pos = s.tellg(), &s](){s.seekg(pos); s.setstate(state);};
     std::string temp_s;
     std::getline(s, temp_s);
+    if(!s){rewind(); std::cout<<"Read error!"<<std::endl; return s;}
     std::stringstream ss(temp_s);
+    if(!ss){rewind(); std::cout<<"Read error!"<<std::endl; return s;}
     std::getline(ss, temp_s, ';');
     if(static_cast<int>(temp_s.size()) > 0){
         int dim = std::stoi(temp_s);
@@ -344,22 +347,22 @@ std::istream& operator>>(std::istream& s, sq_matrix<T1>& mat){
             }
             else{
                 rewind();
-                std::cout<<"Dimension error!"<<std::endl;
+                std::cout<<"Dimension error!1"<<std::endl;
                 return s;
             }
         }
         if(dim * dim == static_cast<int>(temp_v.size())){
-            mat.data = temp_v;
+            mat.data = std::move(temp_v);
             mat.dim = dim;
         }
         else{
             rewind();
-            std::cout<<"Dimension error!"<<std::endl;
+            std::cout<<"Dimension error!2"<<std::endl;
         }
     }
     else{
         rewind();
-        std::cout<<"Dimension error!"<<std::endl;
+        std::cout<<"Dimension error!3"<<std::endl;
     }
     return s;
 }
