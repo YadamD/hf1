@@ -11,18 +11,17 @@ int main(int, char**){
     cout.precision(16);
     unsigned int seed = static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count());
     minstd_rand0 generator(seed);
-    std:: vector<double> time_r;
-    std:: vector<double> N;
+    vector<double> time_r;
+    vector<double> N(1000);
     for(int dim = 2; dim < 1001; dim++){
-        std::vector<double> matrix1;
-        std::vector<double> matrix2;
-        for(int j = 0; j < dim*dim; j++){
-            matrix1.push_back(generator()/(1e5+0.0));
+        int n = dim*dim;
+        N[dim-2] = n;
+        vector<double> matrix1(n);
+        vector<double> matrix2(n);
+        for(int j = 0; j < n; j++){
+            matrix1[j] = generator()/(1e5);
+            matrix2[j] = generator()/(1e5);
         }
-        for(int j = 0; j < dim*dim; j++){
-            matrix2.push_back(generator()/(1e5+0.0));
-        }
-        N.push_back(dim*dim);
         sq_matrix<double> m1(dim, matrix1);
         sq_matrix<double> m2(dim, matrix2);
 
@@ -33,7 +32,7 @@ int main(int, char**){
         time_r.push_back(t_r);
     }
     ofstream f;
-    f.open("timedata.txt",fstream::app);
+    f.open("timedata.txt", fstream::app);
     for(int i = 0; i < static_cast<int>(N.size())-1; i++){
     f << N[i] << ", " << time_r[i] << "\n";
     }
