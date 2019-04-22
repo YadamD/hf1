@@ -70,8 +70,9 @@ class sq_matrix{
             exit(-1);
         }
     }
-	
-    sq_matrix<T>& operator=(sq_matrix<T>&&) = default;
+
+	//sq_matrix<T>(sq_matrix<T>&&) = default;
+	sq_matrix<T>& operator=(sq_matrix<T>&&) = default;
     sq_matrix<T>(sq_matrix<T>&& o) noexcept : dim(std::exchange(o.dim, 0)), data(std::move(o.data)) {}
 
     T & operator()(int i, int j){return data[dim * i + j];}
@@ -329,7 +330,9 @@ std::istream& operator>>(std::istream& s, sq_matrix<T1>& mat){
     auto rewind = [state = s.rdstate(), pos = s.tellg(), &s](){s.seekg(pos); s.setstate(state);};
     std::string temp_s;
     std::getline(s, temp_s);
+    if(!s){rewind(); std::cout<<"Read error!"<<std::endl; return s;}
     std::stringstream ss(temp_s);
+    if(!ss){rewind(); std::cout<<"Read error!"<<std::endl; return s;}
     std::getline(ss, temp_s, ';');
     if(static_cast<int>(temp_s.size()) > 0){
         int dim = std::stoi(temp_s);
@@ -349,7 +352,7 @@ std::istream& operator>>(std::istream& s, sq_matrix<T1>& mat){
             }
         }
         if(dim * dim == static_cast<int>(temp_v.size())){
-            mat.data = temp_v;
+            mat.data = std::move(temp_v);
             mat.dim = dim;
         }
         else{
