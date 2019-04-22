@@ -78,7 +78,9 @@ std::istream& operator>>(std::istream& s,vec2<T>& v){
     auto rewind = [state = s.rdstate(), pos = s.tellg(), &s](){s.seekg(pos); s.setstate(state);};   
     std::string temp;
     std::getline(s, temp);
+    if(!s){rewind(); std::cout<<"Read error!"<<std::endl;}
     std::stringstream ss(temp);
+    if(!ss){rewind(); std::cout<<"Read error!"<<std::endl;}
     std::getline(ss, temp, ',');
     if(static_cast<int>(temp.size()) <= 0){
         rewind();
