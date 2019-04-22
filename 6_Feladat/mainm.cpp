@@ -80,12 +80,21 @@ int main(int, char**){
         cout<<a7<<endl;
         cout<<add_res<<endl;
     }
+
+    if(m3.size() != 0){
+       cout<<"Move error! (move3)"<<endl; 
+    }
+
     sq_matrix<double> m4 = m2;
     sq_matrix<double> a8 = std::move(m4) + m1;
     if(!sq_matrix_eq(a8, add_res, eps)){
         cout<<"Addition operator error! (move1)"<<endl;
         cout<<a8<<endl;
         cout<<add_res<<endl;
+    }
+
+    if(m4.size() != 0){
+       cout<<"Move error! (move4)"<<endl; 
     }
 
     sq_matrix<double> m5 = m1;
@@ -97,6 +106,10 @@ int main(int, char**){
         cout<<add_res<<endl;
     }
 
+    if(m5.size() != 0){
+       cout<<"Move error! (move5)"<<endl; 
+    }
+
     sq_matrix<double> m7 = m1;
     sq_matrix<double> m8 = m2;
     sq_matrix<double> a10 = std::move(m7) - std::move(m8);
@@ -104,6 +117,10 @@ int main(int, char**){
         cout<<"Substraction operator error! (move_both)"<<endl;
         cout<<a10<<endl;
         cout<<sub_res<<endl;
+    }
+
+    if(m7.size() != 0){
+       cout<<"Move error! (move7)"<<endl; 
     }
 
     sq_matrix<double> m9 = m1;
@@ -115,6 +132,10 @@ int main(int, char**){
         cout<<sub_res<<endl;
     }
 
+    if(m10.size() != 0){
+       cout<<"Move error! (move10)"<<endl; 
+    }
+
     sq_matrix<double> m11 = m1;
     sq_matrix<double> m12 = m2;
     sq_matrix<double> a12 = std::move(m11) - m12;
@@ -122,6 +143,10 @@ int main(int, char**){
         cout<<"Substraction operator error! (move1)"<<endl;
         cout<<a12<<endl;
         cout<<sub_res<<endl;
+    }
+
+    if(m11.size() != 0){
+       cout<<"Move error! (move11)"<<endl; 
     }
   
     sq_matrix<double> m13 = m1;
@@ -131,6 +156,9 @@ int main(int, char**){
         cout<<"Matrix product error! (move2)"<<endl;
         cout<<a13<<endl;
         cout<<prod_res1<<endl;
+    }
+    if(m14.size() != 0){
+       cout<<"Move error! (move14)"<<endl; 
     }
 
     sq_matrix<double> m15 = m1;
@@ -142,6 +170,10 @@ int main(int, char**){
         cout<<prod_res1<<endl;
     }
 
+    if(m15.size() != 0){
+       cout<<"Move error! (move15)"<<endl; 
+    }
+
     sq_matrix<double> m17 = m1;
     sq_matrix<double> m18 = m2;
     sq_matrix<double> a15 = std::move(m17) * std::move(m18);
@@ -149,6 +181,10 @@ int main(int, char**){
         cout<<"Matrix product error! (move_both)"<<endl;
         cout<<a15<<endl;
         cout<<prod_res1<<endl;
+    }
+
+    if(m17.size() != 0){
+       cout<<"Move error! (move17)"<<endl; 
     }
 
     sq_matrix<double> m19 = m2;
@@ -193,6 +229,12 @@ int main(int, char**){
 
     stringstream ss1;
     ss1<<m1;
+    string m1_s = ss1.str();
+    if(m1_s != "4;821,13,463,215,992,708,880,12,974,79,564,829,95,568,63,149,"){
+        cout<<"String read error!"<<endl;
+        cout<<m1_s<<endl;
+    }
+
     sq_matrix<double> m1_res(4);
     ss1>>m1_res;
     if(!sq_matrix_eq(m1, m1_res, eps)){
@@ -209,6 +251,17 @@ int main(int, char**){
         cout<<m1_res<<endl;
     }
 
+    stringstream ss3("4;821,13,463,215,992,708,880,12,974,79,564,829,95,568,63,149");
+    sq_matrix<double> test(4);
+    ss3>>test;
+    if(!sq_matrix_eq(test, m1, eps)){
+        cout<<"<< operator error!"<<endl;
+        cout<<test<<endl;
+        cout<<m1<<endl;
+    }
+    
+
     return 0;
 
 }
+
