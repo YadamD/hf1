@@ -3,7 +3,6 @@
 #include <iostream>
 #include <numeric>
 #include <initializer_list>
-#include <cmath>
 #include <ostream>
 #include <string>
 #include <sstream>
@@ -24,22 +23,22 @@ auto add = [](auto const& x, auto const& y){ return x + y; };
 auto sub = [](auto const& x, auto const& y){ return x - y; };
 
 template<typename T>
-std::vector<T> sq_mat_mul(std::vector<T> const& m1, std::vector<T> const& m2){
-    int const size = static_cast<int>(m1.size());
-    int n = static_cast<int>(std::sqrt(size));
+std::vector<T> sq_mat_mul(std::vector<T> const& m1, std::vector<T> const& m2, int dim){
+    int const size = m1.size();
+    int n = dim*dim;
     T sum = 0;
     std::vector<T> temp(size);
-    if(size != static_cast<int>(m2.size()) || n * n != size){
+    if(size != m2.size() || n != size){
         std::cout<<"Matrices cannot be multiplied together!"<<std::endl;
         return temp;
     }
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < n; j++){
+    for(int i = 0; i < dim; i++){
+        for(int j = 0; j < dim; j++){
             sum = 0;
-            for(int k = 0; k < n; k++){
-                sum += (m1[i * n + k]) * (m2[k * n + j ]);
+            for(int k = 0; k < dim; k++){
+                sum += (m1[i * dim + k]) * (m2[k * dim + j ]);
             }
-        temp[n*i+j] = sum;
+        temp[dim*i+j] = sum;
         }
     }
     return temp;
@@ -118,7 +117,7 @@ class sq_matrix{
     }
 
     sq_matrix<T>& operator*=(sq_matrix<T> const& m){
-        std::vector<T> temp = sq_mat_mul((*this).data, m.data);        
+        std::vector<T> temp = sq_mat_mul((*this).data, m.data, (*this).dim);        
         (*this).data.swap(temp);
         return *this;
     }
@@ -157,31 +156,33 @@ class sq_matrix{
 template<typename T>
 int sq_mat_prod(sq_matrix<T> & m1, sq_matrix<T> & m2, int lab){
     int n = m1.dimension();
-    std::vector<T> temp(n);  
+    std::vector<T> temp(n);
     if(lab == 1){
         for(int i = 0; i <  n; i++){
-            std::fill(temp.begin(), temp.end(), 0);
             for(int j = 0; j < n; j++){
+                double temp_d  = 0;
                 for(int k = 0; k < n; k++){
-                    temp[j] += m1(i, k) * m2(k, j);
-                    if(j == n - 1){
-                        m1(i, k) = temp[k];
-                    }
+                    temp_d += m1(i, k) * m2(k, j);
                 }
+                temp[j] = temp_d;
+            }
+            for(int j = 0; j < n; j++){
+                m1(i, j) = temp[j];
             }
         }
         return 0;
     }
     else if(lab == 2){
         for(int i = 0; i <  n; i++){
-            std::fill(temp.begin(), temp.end(), 0);
             for(int j = 0; j < n; j++){
+                double temp_d  = 0;
                 for(int k = 0; k < n; k++){
-                    temp[j] += m1(j, k) * m2(k, i);
-                    if(j == n - 1){
-                        m2(k, i) = temp[k];
-                    }
+                    temp_d += m1(i, k) * m2(k, j);
                 }
+                temp[j] = temp_d;
+            }
+            for(int j = 0; j < n; j++){
+                m2(i, j) = temp[j];
             }
         }
         return 0;
@@ -255,13 +256,13 @@ sq_matrix<T>&& operator*(sq_matrix<T>&& m, T const& c){
 template<typename T>
 sq_matrix<T> operator*(T const& c, sq_matrix<T> const& m){
     sq_matrix<T> result(m.dimension());
-    detail::transform_matrix1(m, result, [c](T const& x){return x * c;});
+    detail::transform_matrix1(m, result, [c](T const& x){return c * x;});
     return result;
 }
 
 template<typename T>
 sq_matrix<T>&& operator*(T const& c, sq_matrix<T>&& m){
-    detail::transform_matrix1(m, m, [c](T const& x){return x * c;});
+    detail::transform_matrix1(m, m, [c](T const& x){return c * x;});
     return std::move(m);
 }
 
@@ -281,7 +282,7 @@ sq_matrix<T1>&& operator/(sq_matrix<T1>&& m, T2 const& c){
 template<typename T>
 sq_matrix<T> operator*(sq_matrix<T> const& m1, sq_matrix<T> const& m2){
     std::vector<T> v(m1.size());
-    v = sq_mat_mul(m1.read_data(), m2.read_data());
+    v = sq_mat_mul(m1.read_data(), m2.read_data(), m1.dim);
     sq_matrix<T> temp(m1.dimension(), v);
     return temp;
 }
