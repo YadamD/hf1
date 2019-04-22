@@ -4,7 +4,7 @@
 #include <array>
 using namespace std;
 
-int main(){
+int main(int, char**){
     cout.precision(7);
     sq_matrix<double> const m1({821,13,463,215,992,708,880,12,974,79,564,829,95,568,63,149}, 4);
     sq_matrix<double> const m2({567,573,840,105,223,289,169,928,831,788,661,261,59,809,449,49}, 4);
@@ -12,8 +12,6 @@ int main(){
     double eps = 1e-10;
 
     //Correct values from https://matrix.reshish.com
-
-    cout<<m1<<endl;
 
     if(!sq_matrix_eq(m1, m1, eps)){
         cout<<"Error in equality check function!"<<endl;
@@ -82,12 +80,21 @@ int main(){
         cout<<a7<<endl;
         cout<<add_res<<endl;
     }
+
+    if(m3.size() != 0){
+       cout<<"Move error! (move3)"<<endl; 
+    }
+
     sq_matrix<double> m4 = m2;
     sq_matrix<double> a8 = std::move(m4) + m1;
     if(!sq_matrix_eq(a8, add_res, eps)){
         cout<<"Addition operator error! (move1)"<<endl;
         cout<<a8<<endl;
         cout<<add_res<<endl;
+    }
+
+    if(m4.size() != 0){
+       cout<<"Move error! (move4)"<<endl; 
     }
 
     sq_matrix<double> m5 = m1;
@@ -99,6 +106,10 @@ int main(){
         cout<<add_res<<endl;
     }
 
+    if(m5.size() != 0){
+       cout<<"Move error! (move5)"<<endl; 
+    }
+
     sq_matrix<double> m7 = m1;
     sq_matrix<double> m8 = m2;
     sq_matrix<double> a10 = std::move(m7) - std::move(m8);
@@ -106,6 +117,10 @@ int main(){
         cout<<"Substraction operator error! (move_both)"<<endl;
         cout<<a10<<endl;
         cout<<sub_res<<endl;
+    }
+
+    if(m7.size() != 0){
+       cout<<"Move error! (move7)"<<endl; 
     }
 
     sq_matrix<double> m9 = m1;
@@ -117,6 +132,10 @@ int main(){
         cout<<sub_res<<endl;
     }
 
+    if(m10.size() != 0){
+       cout<<"Move error! (move10)"<<endl; 
+    }
+
     sq_matrix<double> m11 = m1;
     sq_matrix<double> m12 = m2;
     sq_matrix<double> a12 = std::move(m11) - m12;
@@ -124,6 +143,10 @@ int main(){
         cout<<"Substraction operator error! (move1)"<<endl;
         cout<<a12<<endl;
         cout<<sub_res<<endl;
+    }
+
+    if(m11.size() != 0){
+       cout<<"Move error! (move11)"<<endl; 
     }
   
     sq_matrix<double> m13 = m1;
@@ -133,6 +156,9 @@ int main(){
         cout<<"Matrix product error! (move2)"<<endl;
         cout<<a13<<endl;
         cout<<prod_res1<<endl;
+    }
+    if(m14.size() != 0){
+       cout<<"Move error! (move14)"<<endl; 
     }
 
     sq_matrix<double> m15 = m1;
@@ -144,6 +170,10 @@ int main(){
         cout<<prod_res1<<endl;
     }
 
+    if(m15.size() != 0){
+       cout<<"Move error! (move15)"<<endl; 
+    }
+
     sq_matrix<double> m17 = m1;
     sq_matrix<double> m18 = m2;
     sq_matrix<double> a15 = std::move(m17) * std::move(m18);
@@ -151,6 +181,10 @@ int main(){
         cout<<"Matrix product error! (move_both)"<<endl;
         cout<<a15<<endl;
         cout<<prod_res1<<endl;
+    }
+
+    if(m17.size() != 0){
+       cout<<"Move error! (move17)"<<endl; 
     }
 
     sq_matrix<double> m19 = m2;
@@ -191,6 +225,24 @@ int main(){
         cout<<"Matrix substraction error! (-=)"<<endl;
         cout<<m23<<endl;
         cout<<prod_res1<<endl;
+    }
+
+    stringstream ss1;
+    ss1<<m1;
+    sq_matrix<double> m1_res(4);
+    ss1>>m1_res;
+    if(!sq_matrix_eq(m1, m1_res, eps)){
+        cout<<"<< operator error!"<<endl;
+        cout<<m1_res<<endl;
+    }
+
+    stringstream ss2;
+    ss2<<m1;
+    sq_matrix<double> m2_res(4);
+    ss2>>m2_res;
+    if(sq_matrix_eq(m2, m2_res, eps)){
+        cout<<"<< operator error!"<<endl;
+        cout<<m1_res<<endl;
     }
 
     return 0;
