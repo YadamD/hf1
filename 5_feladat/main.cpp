@@ -229,6 +229,12 @@ int main(int, char**){
 
     stringstream ss1;
     ss1<<m1;
+    string m1_s = ss1.str();
+    if(m1_s != "4;821,13,463,215,992,708,880,12,974,79,564,829,95,568,63,149,"){
+        cout<<"String read error!"<<endl;
+        cout<<m1_s<<endl;
+    }
+
     sq_matrix<double> m1_res(4);
     ss1>>m1_res;
     if(!sq_matrix_eq(m1, m1_res, eps)){
@@ -244,6 +250,16 @@ int main(int, char**){
         cout<<"<< operator error!"<<endl;
         cout<<m1_res<<endl;
     }
+
+    stringstream ss3("4;821,13,463,215,992,708,880,12,974,79,564,829,95,568,63,149");
+    sq_matrix<double> test(4);
+    ss3>>test;
+    if(!sq_matrix_eq(test, m1, eps)){
+        cout<<"<< operator error!"<<endl;
+        cout<<test<<endl;
+        cout<<m1<<endl;
+    }
+    
 
     return 0;
 
